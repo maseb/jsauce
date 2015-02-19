@@ -1,0 +1,20 @@
+{
+  "name": "jsauce",
+  "version": "0.0.0",
+  "description": "JS OS (jsauce) - Experimental",
+  "main": "lib-node/jsauce/index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha --reporter spec test/unit/**/test-*.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "thicket-build-support": "0.0.1",
+    "underscore": "1.7.0",
+    "bluebird": "2.9.12",
+    "thicket": "1.1.2"
+  },
+  "devDependencies": {
+    "mocha": "2.1.0"
+  }
+}
