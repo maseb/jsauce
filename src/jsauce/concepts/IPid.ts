@@ -1,0 +1,2 @@
+interface IPid {}
+export = IPid;

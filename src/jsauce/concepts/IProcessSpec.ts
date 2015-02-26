@@ -1,0 +1,2 @@
+interface IProcessSpec {}
+export = IProcessSpec;

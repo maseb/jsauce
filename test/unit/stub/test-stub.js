@@ -1,3 +1,5 @@
+/*global require: false, module: false */
+
 var assert = require("assert");
 
 describe("Stub", function() {
