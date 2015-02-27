@@ -4,7 +4,8 @@
   "description": "JS OS (jsauce) - Experimental",
   "main": "dist/lib-node/jsauce/index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec test/unit/**/test-*.js"
+    "test": "node_modules/.bin/mocha --reporter spec test/unit/**/test-*.js",
+    "dist" : "node_modules/.bin/gulp lib-node"
   },
   "author": "",
   "license": "MIT",

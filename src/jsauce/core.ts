@@ -3,16 +3,24 @@
 import thicket  = require("thicket");
 import _        = require("underscore");
 import Promise  = require("bluebird");
-import concepts = require("./concepts");
 
 var Options     = thicket.c("options");
 
+export interface IPid {}
+
+export interface IProcess {
+    mailboxId() : string;
+}
+
+export interface IProcessSpec {}
+
 export class ProcessManager {
     constructor() {}
-    launch(spec : concepts.IProcessSpec) : Promise<concepts.IPid> {
+    launch(spec: IProcessSpec) : Promise<IPid> {
         return Promise
             .bind(this)
             .then(function() {
+
                 return {};
             });
     }
@@ -22,7 +30,7 @@ export interface ILocalProcessOpts {
     mailboxId?: string;
 }
 
-export class LocalProcess implements concepts.IProcess {
+export class LocalProcess implements IProcess {
     private _mailboxId: string;
 
     constructor(o?: ILocalProcessOpts) {
