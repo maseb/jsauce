@@ -44,7 +44,7 @@ gulp.task('lib-web', function() {
 
   var bundle = function() {
     return bundler
-      .add('./src/jsauce/index.ts')
+      .add('./src/**/*.ts')
       .plugin('tsify')
       .bundle()
       .pipe(source(getBundleName() + '.js'))

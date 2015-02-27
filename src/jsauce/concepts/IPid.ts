@@ -1,2 +1,0 @@
-interface IPid {}
-export = IPid;

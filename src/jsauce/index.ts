@@ -2,7 +2,7 @@
 /// <reference path="./lib.d.ts" />
 
 import thicket           = require("thicket");
-import ProcessManager    = require("./core/ProcessManager");
+import core              = require("./core");
 
 var ComponentRegistry    = thicket.c("component-registry");
 
@@ -10,7 +10,7 @@ var c = new ComponentRegistry();
 
 c.registerMany([
     {
-        module: ProcessManager,
+        module: core.ProcessManager,
         as: "process-manager"
     }
 ]);
