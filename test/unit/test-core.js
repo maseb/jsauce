@@ -1,0 +1,32 @@
+
+var jsauce = require("../../dist/lib-node/jsauce"),
+    assert = require("assert"),
+    thicket = require("thicket"),
+    Exchange = thicket.c("messaging/exchange"),
+    ProcessManager = jsauce.c("process-manager");
+
+
+
+describe("ProcessManager", function() {
+  it("should exist", function() {
+    assert.ok(ProcessManager);
+  });
+
+  it("should be able to launch a process", function(done) {
+    var spec = {},
+        ex   = new Exchange(),
+        pm   = new ProcessManager({exchange: ex});
+
+    pm
+      .launch(spec)
+      .then(function(pid) {
+        assert.ok(pid);
+        assert.ok(pm.doesOwn(pid), "ProcessManager owns the pid it returned");
+      })
+      .finally(function() {
+        ex.dispose();
+        done();
+      });
+  });
+
+});

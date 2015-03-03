@@ -3,10 +3,14 @@
 import thicket  = require("thicket");
 import _        = require("underscore");
 import Promise  = require("bluebird");
+import mori     = require("mori");
 
-var Options     = thicket.c("options");
+var Options     = thicket.c("options"),
+    UUID        = thicket.c("uuid");
 
-export interface IPid {}
+export interface IPid {
+    id(): string;
+}
 
 export interface IProcess {
     mailboxId() : string;
@@ -14,15 +18,34 @@ export interface IProcess {
 
 export interface IProcessSpec {}
 
+export interface IProcessManagerOpts {}
+
 export class ProcessManager {
-    constructor() {}
+    private _procs : mori.HashMap<string,IPid>;
+    private _exchange : thicket.Exchange;
+
+    constructor(o?: IProcessManagerOpts) {
+        var opts = Options.fromObject(o);
+        this._exchange = opts.getOrError("exchange");
+        this._procs    = mori.hashMap<string,IPid>();
+    }
+
     launch(spec: IProcessSpec) : Promise<IPid> {
         return Promise
             .bind(this)
-            .then(function() {
-
-                return {};
+            .then(function(): IPid {
+                var mbox = this._exchange.mailbox(UUID.v4()),
+                    pid  = new LocalPid({mailboxId: mbox.id()}),
+                    proc = new LocalProcess({
+                        mailbox: mbox
+                    });
+                this._procs = mori.assoc(this._procs, pid.id(), proc);
+                return pid;
             });
+    }
+
+    doesOwn(pid: IPid) : boolean {
+        return mori.hasKey(this._procs, pid.id());
     }
 }
 
@@ -31,11 +54,11 @@ export interface ILocalProcessOpts {
 }
 
 export class LocalProcess implements IProcess {
-    private _mailboxId: string;
+    private _mailbox: any;
 
     constructor(o?: ILocalProcessOpts) {
         var opts = Options.fromObject(o);
-        this._mailboxId = opts.getOrError("mailboxId");
+        this._mailbox = opts.getOrError("mailbox");
     }
 
     /**
@@ -46,6 +69,25 @@ export class LocalProcess implements IProcess {
      * @returns {string}
      */
     mailboxId(): string {
-        return this._mailboxId;
+        return this._mailbox.id();
+    }
+}
+
+export interface ILocalPidOpts {
+    mailboxId: string;
+}
+
+export class LocalPid implements IPid {
+    private _mailboxId: string;
+    private _id: string;
+    constructor(o?:ILocalPidOpts) {
+        var opts : thicket.Options = Options.fromObject(o);
+
+        this._id        = opts.getOrElse("id", UUID.v4());
+        this._mailboxId = opts.getOrError("mailboxId");
+
+    }
+    id(): string {
+        return this._id;
     }
 }

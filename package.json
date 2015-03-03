@@ -4,15 +4,16 @@
   "description": "JS OS (jsauce) - Experimental",
   "main": "dist/lib-node/jsauce/index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec test/unit/**/test-*.js",
-    "dist" : "node_modules/.bin/gulp lib-node"
+    "test": "node_modules/.bin/gulp test",
+    "dist": "node_modules/.bin/gulp lib-node"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "underscore": "1.7.0",
     "bluebird": "2.9.12",
-    "thicket": "1.1.2"
+    "thicket": "1.1.2",
+    "mori": "~0.3.2"
   },
   "devDependencies": {
     "mocha": "2.1.0",

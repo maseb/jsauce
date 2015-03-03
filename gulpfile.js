@@ -2,14 +2,15 @@
 
 'use strict';
 
-var browserify = require('browserify');
-var gulp = require('gulp');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-var uglify = require('gulp-uglify');
-var sourcemaps = require('gulp-sourcemaps'),
+var browserify = require('browserify'),
+    gulp       = require('gulp'),
+    source     = require('vinyl-source-stream'),
+    buffer     = require('vinyl-buffer'),
+    uglify     = require('gulp-uglify'),
+    sourcemaps = require('gulp-sourcemaps'),
     ts         = require('gulp-typescript'),
-    merge      = require('merge2');
+    merge      = require('merge2'),
+    mocha      = require('gulp-mocha');
 
 var getBundleName = function () {
   var version = require('./package.json').version;
@@ -34,6 +35,10 @@ gulp.task('lib-node', function() {
     tsResult.dts.pipe(gulp.dest('dist/definitions')),
     tsResult.js.pipe(gulp.dest('dist/lib-node'))
   ]);
+});
+
+gulp.task('test', ['lib-node'], function() {
+  return gulp.src('test/unit/**/test-*.js', { read: false }).pipe(mocha({ reporter: 'spec' }))
 });
 
 gulp.task('lib-web', function() {
