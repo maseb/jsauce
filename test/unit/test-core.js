@@ -13,9 +13,15 @@ describe("ProcessManager", function() {
   });
 
   it("should be able to launch a process", function(done) {
-    var spec = {},
-        ex   = new Exchange(),
-        pm   = new ProcessManager({exchange: ex});
+    var delegate = {},
+        spec = {
+          pType: "local",
+          delegateBuilder: function() {
+            return delegate;
+          }
+        },
+        ex = new Exchange(),
+        pm = new ProcessManager({exchange: ex});
 
     pm
       .launch(spec)
@@ -24,9 +30,11 @@ describe("ProcessManager", function() {
         assert.ok(pm.doesOwn(pid), "ProcessManager owns the pid it returned");
       })
       .finally(function() {
+        pm.dispose();
         ex.dispose();
         done();
       });
   });
+
 
 });
