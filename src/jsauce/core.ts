@@ -39,7 +39,7 @@ export interface IProcessSpec {
     pType: string;
 }
 
-export interface ILocalProcessDelegate {}
+export interface ILocalProcessDelegate extends IProcessLifecycleMessageTarget {}
 
 export interface IProcessContext {}
 
@@ -151,7 +151,7 @@ export interface ILocalProcessOpts {
     delegate: ILocalProcessDelegate;
 }
 
-export class LocalProcess implements IProcess, IProcessLifecycleMessageTarget {
+export class LocalProcess implements IProcess {
     private _id:       string;
     private _pmMboxId: string;
     private _mailbox:  thicket.Mailbox;
@@ -164,9 +164,11 @@ export class LocalProcess implements IProcess, IProcessLifecycleMessageTarget {
         this._id       = opts.getOrError("id");
         this._pmMboxId = opts.getOrError("processManagerMailboxId");
         this._mailbox  = opts.getOrError("mailbox");
+        this._delegate = opts.getOrError("delegate");
+
         this._courier  = new Courier({
             mailbox: this._mailbox,
-            delegate: this
+            delegate: this._delegate
         });
     }
 
@@ -174,9 +176,6 @@ export class LocalProcess implements IProcess, IProcessLifecycleMessageTarget {
         return this._mailbox.id();
     }
 
-    onReqHandshake(msg: HandshakeMessage) {
-        return Promise.resolve(<HandshakeReplyMessage>{})
-    }
 }
 
 export interface ILocalPidOpts {

@@ -1,5 +1,6 @@
 
 var jsauce = require("../../dist/lib-node/jsauce"),
+    Promise = require("bluebird"),
     assert = require("assert"),
     thicket = require("thicket"),
     Exchange = thicket.c("messaging/exchange"),
@@ -13,7 +14,11 @@ describe("ProcessManager", function() {
   });
 
   it("should be able to launch a process", function(done) {
-    var delegate = {},
+    var delegate = {
+          onReqHandshake: function(msg) {
+            return Promise.resolve({});
+          }
+        },
         spec = {
           pType: "local",
           delegateBuilder: function() {
