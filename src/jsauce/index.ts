@@ -12,6 +12,10 @@ c.registerMany([
     {
         module: core.ProcessManager,
         as: "process-manager"
+    },
+    {
+        module:core.Errors,
+        as: "errors"
     }
 ]);
 

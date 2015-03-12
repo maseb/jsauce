@@ -18,6 +18,8 @@ export interface MTypedMessage extends Message{
 export interface ReplyMessage extends Message {}
 export interface HandshakeMessage extends MTypedMessage {}
 export interface HandshakeReplyMessage extends ReplyMessage {}
+export interface WillShowMessage extends MTypedMessage {}
+export interface WillHideMessage extends MTypedMessage {}
 
 export var Defaults = {
     DefaultProcessHandshakeTimeout: 1000
@@ -44,6 +46,7 @@ export interface ILocalProcessDelegate extends IProcessLifecycleMessageTarget {}
 export interface IProcessContext {}
 
 export interface ILocalProcessSpec extends IProcessSpec {
+    handshakeTimeout?: number;
     delegateBuilder: (ctx: IProcessContext) => ILocalProcessDelegate;
 }
 
@@ -56,7 +59,9 @@ export interface IProcess {
 }
 
 export interface IProcessLifecycleMessageTarget {
-    onReqHandshake(msg: HandshakeMessage): Promise<HandshakeReplyMessage>;
+    onReqHandshake?(msg: HandshakeMessage): Promise<HandshakeReplyMessage>;
+    onMsgWillShow?(msg: WillShowMessage): void;
+    onMsgWillHide?(msg: WillHideMessage): void;
 }
 
 export interface IProcessManagerOpts {}
@@ -128,7 +133,7 @@ export class ProcessManager {
                 return this._courier
                     .sendAndReceive(mbox.ownerIdentity(), Messages.Handshake())
                     .bind(this)
-                    .timeout(this._handshakeTimeout)
+                    .timeout(spec.handshakeTimeout || this._handshakeTimeout)
                     .then(function() {
                         this._procs = mori.assoc(this._procs, pid.id(), proc);
                         return pid;

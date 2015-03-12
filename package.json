@@ -13,7 +13,7 @@
   "dependencies": {
     "underscore": "1.7.0",
     "bluebird": "2.9.12",
-    "thicket": "1.2.0",
+    "thicket": "1.2.1",
     "mori": "~0.3.2"
   },
   "devDependencies": {

@@ -4,7 +4,10 @@ var jsauce = require("../../dist/lib-node/jsauce"),
     assert = require("assert"),
     thicket = require("thicket"),
     Exchange = thicket.c("messaging/exchange"),
-    ProcessManager = jsauce.c("process-manager");
+    CountdownLatch = thicket.c("countdown-latch"),
+    ProcessManager = jsauce.c("process-manager"),
+    Errors = jsauce.c("errors");
+
 
 
 
@@ -26,7 +29,7 @@ describe("ProcessManager", function() {
           }
         },
         ex = new Exchange(),
-        pm = new ProcessManager({exchange: ex});
+        pm = new ProcessManager({ exchange: ex });
 
     pm
       .launch(spec)
@@ -38,6 +41,35 @@ describe("ProcessManager", function() {
         pm.dispose();
         ex.dispose();
         done();
+      });
+  });
+
+  it("should timeout if it doesn't receive a handshake", function(done) {
+    var delegate = {},
+        spec = {
+          pType: "local",
+          handshakeTimeout: 30,
+          delegateBuilder: function() {
+            return delegate;
+          }
+        },
+        ex = new Exchange(),
+        pm = new ProcessManager({ exchange: ex }),
+        latch = new CountdownLatch(1, function() {
+          assert.ok(true);
+          ex.dispose();
+          pm.dispose();
+          done();
+        });
+
+    pm
+      .launch(spec)
+      .then(function() {
+        assert.ok(false, "shouldn't get here");
+      })
+      .catch(Errors.HandshakeTimeoutError, function(err) {
+        assert.ok(err);
+        latch.step();
       });
   });
 
