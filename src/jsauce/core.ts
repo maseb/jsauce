@@ -11,15 +11,17 @@ var Options    = thicket.c("options"),
     Courier    = thicket.c("messaging/courier");
 
 
-export interface Message {}
-export interface MTypedMessage extends Message{
-    mType: string;
+
+export interface IReplyMessage extends thicket.IMessage {}
+export interface IHandshakeMessage extends thicket.IMTypedMessage {}
+export interface IHandshakeReplyMessage extends IReplyMessage {}
+export interface IWillShowMessage extends thicket.IMTypedMessage {}
+export interface IDidShowMessage extends thicket.IMTypedMessage {}
+export interface IWillHideMessage extends thicket.IMTypedMessage {}
+export interface IDidHideMessage extends thicket.IMTypedMessage {}
+export interface IMessageMessage extends thicket.IMTypedMessage {
+    data: any;
 }
-export interface ReplyMessage extends Message {}
-export interface HandshakeMessage extends MTypedMessage {}
-export interface HandshakeReplyMessage extends ReplyMessage {}
-export interface WillShowMessage extends MTypedMessage {}
-export interface WillHideMessage extends MTypedMessage {}
 
 export var Defaults = {
     DefaultProcessHandshakeTimeout: 1000
@@ -31,7 +33,8 @@ export var Errors = {
 };
 
 export var Messages = {
-    Handshake: Lang.makeMTypeBuilder("handshake")
+    Handshake: Lang.makeMTypeBuilder("handshake"),
+    Message: Lang.makeMTypeBuilder("message", ["data"], { defaults: {data: null} })
 };
 
 export interface IProcessSpec {
@@ -41,7 +44,7 @@ export interface IProcessSpec {
     pType: string;
 }
 
-export interface ILocalProcessDelegate extends IProcessLifecycleMessageTarget {}
+export interface ILocalProcessDelegate extends IProcessMessageTarget {}
 
 export interface IProcessContext {}
 
@@ -58,10 +61,15 @@ export interface IProcess {
     mailboxId() : string;
 }
 
-export interface IProcessLifecycleMessageTarget {
-    onReqHandshake?(msg: HandshakeMessage): Promise<HandshakeReplyMessage>;
-    onMsgWillShow?(msg: WillShowMessage): void;
-    onMsgWillHide?(msg: WillHideMessage): void;
+export interface IProcessMessageTarget {
+    onReqHandshake?(msg: IHandshakeMessage): Promise<IHandshakeReplyMessage>;
+    onMsgWillShow?(msg: IWillShowMessage): void;
+    onMsgDidShow?(msg: IDidShowMessage): void;
+
+    onMsgWillHide?(msg: IWillHideMessage): void;
+    onMsgDidHide?(msg: IDidHideMessage): void;
+
+    onMsgMessage?(msg: IMessageMessage): void;
 }
 
 export interface IProcessManagerOpts {}
@@ -104,6 +112,12 @@ export class ProcessManager {
             })
     }
 
+    sendMessage(processMailboxId: string, data: any) {
+        this._courier.send(processMailboxId, Messages.Message({
+            data: data
+        }));
+    }
+
     doesOwn(pid: IPid) : boolean {
         return mori.hasKey(this._procs, pid.id());
     }
@@ -120,7 +134,7 @@ export class ProcessManager {
                     processContext = this._createDelegateContext(),
                     delegate = spec.delegateBuilder(processContext),
                     pid  = new LocalPid({
-                        mailboxId: mbox.id(),
+                        mailboxId: mbox.ownerIdentity(),
                         processManager: this
                     }),
                     proc = new LocalProcess({
@@ -207,5 +221,9 @@ export class LocalPid implements IPid {
      */
     id(): string {
         return this._mailboxId;
+    }
+
+    send(data: any) {
+        this._processManager.sendMessage(this._mailboxId, data);
     }
 }

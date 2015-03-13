@@ -1,5 +1,11 @@
 declare module "thicket" {
 
+    interface IMessage {}
+
+    interface IMTypedMessage extends IMessage{
+        mT: string;
+    }
+
     class Options {
         static fromObject(obj:any): Options;
         getOrError(name: string): any;
@@ -22,6 +28,7 @@ declare module "thicket" {
     }
 
     class Courier {
+        send(mailboxId: string, mTyped: any);
     }
 
     class ErrorClass {

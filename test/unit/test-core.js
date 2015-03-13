@@ -73,5 +73,37 @@ describe("ProcessManager", function() {
       });
   });
 
+  it("should be able to receive a message via a pid", function(done) {
+    var delegate = {
+          onReqHandshake: Promise.method(function() {
+            return {};
+          }),
+          onMsgMessage: Promise.method(function(msg) {
+            assert.ok(msg.data);
+            assert.equal("hello", msg.data);
+            latch.step();
+          })
+        },
+        spec = {
+          pType: "local",
+          delegateBuilder: function() {
+            return delegate;
+          }
+        },
+        ex = new Exchange(),
+        pm = new ProcessManager({ exchange: ex }),
+        latch = new CountdownLatch(1, function() {
+          pm.dispose();
+          ex.dispose();
+          done();
+        });
+
+    pm
+      .launch(spec)
+      .then(function(pid) {
+        pid.send("hello")
+      });
+  });
+
 
 });
